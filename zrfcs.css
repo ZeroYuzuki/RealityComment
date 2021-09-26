@@ -1,0 +1,258 @@
+.cp_h1title {
+	padding: .3em;
+	border-bottom: 2px solid #64B5F6;
+	box-shadow:0px 4px 0px 0px #0D47A1;
+  color:#c0c0c0;
+}
+
+
+
+body {
+  /* 画像ファイルの指定 */
+  background-image: url("https://lh5.googleusercontent.com/proxy/qlEj_fWZC_-EZOpQ7EpM-iJHrh8RVDbYqx04J5AYkY5ttenO1p_EbIMT6agacPLZl8CtBYFg2M7eMqAWq4zOwxM2CDOtHv1vktLFkfJ41FKdsLcUVpR23cIguQjj=s0-d");
+
+
+
+  /* 画像を常に天地左右の中央に配置 */
+  background-position: center center;
+
+  /* 画像をタイル状に繰り返し表示しない */
+  background-repeat: no-repeat;
+
+  /* コンテンツの高さが画像の高さより大きい時、動かないように固定 */
+  background-attachment: fixed;
+
+  /* 表示するコンテナの大きさに基づいて、背景画像を調整 */
+  background-size: cover;
+
+  /* 背景画像が読み込まれる前に表示される背景のカラー */
+  background-color: #00ffff;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+    background-color: #00acee;
+    display: block;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 0 0 #008080;
+    font-weight: bold;
+    width: 150px;
+    text-align: center;
+    margin: 110px auto 0;
+    letter-spacing: 2px;
+}
+
+a.za1 {
+    color: #000000;
+    text-decoration: none;
+    background-color: #e6e6fa;
+    display: block;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 0 0 #696969;
+    font-weight: bold;
+    width: 150px;
+    text-align: center;
+    margin: 110px auto 0;
+    letter-spacing: 2px;
+}
+
+a.za2 {
+    color: #000000;
+    text-decoration: none;
+    background-color: #ff1493;
+    display: block;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 0 0 #696969;
+    font-weight: bold;
+    width: 150px;
+    text-align: center;
+    margin: 110px auto 0;
+    letter-spacing: 2px;
+}
+
+p.zf1 {
+color: #ff0000;
+font-size: 1.25em;
+}
+
+
+
+p.ztyp {
+    width: 90%;
+    line-height: 2;
+    display: inline-block;
+    background-color: #0000cd;
+    padding: 20px;
+    position: relative;
+    z-index: 99;
+    margin: 50px 0 0;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+p.ztyp {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 1.0rem;
+  letter-spacing: .5em;
+    word-break : break-all;
+		font-family: "Droid Sans";
+}
+
+p.comf {
+ color: #fff;
+ text-align: center;
+ margin: 20px 0;
+ font-size: 1.0rem;
+ letter-spacing: .5em;
+	 word-break : break-all;
+	 width: 30%;
+	 line-height: 2;
+	 display: inline-block;
+	 background-color: #00bfff;
+	 padding: 20px;
+	 position: relative;
+	 z-index: 989;
+	 margin: 50px 0 0;
+	 color: #fff;
+	 letter-spacing: 2px;
+}
+
+p.z2 {
+	width: 85%;
+	line-height: 2;
+	display: inline-block;
+	background-color: #002f3d;
+	padding: 20px;
+	position: relative;
+	z-index: 9;
+	margin: 50px 0 0;
+	color: #fff;
+	letter-spacing: 2px;
+}
+
+.ztyp {
+  text-align: center;
+}
+
+.popup {
+    display: none;
+    height: 100vh;
+    width: 100%;
+    background: black;
+    opacity: 0.7;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+/*=== 画像の表示エリア ================================= */
+.slide {
+ position   : absolute;
+ overflow   : hidden;
+									 /* 画像のサイズに合わせて変更ください */
+ width      : 164px; /*よこ*/
+ height     : 274px; /*縦*/
+ margin     : 100px;      /* サンプルは中央寄せの背景：白 */
+ background : #fff;
+ left:  150px;                /* 左からの位置指定 */
+     top: 1900px;                  /* 上からの位置指定 */
+z-index: 999;
+
+}
+
+/*=== 画像の設定 ======================================= */
+.slide img {
+ display    : block;
+ position   : absolute;
+										 /* 画像のサイズを表示エリアに合せる */
+ width      : inherit;
+ height     : inherit;
+ opacity    : 0;
+ animation  : slideAnime 30s ease infinite;
+}
+
+/*=== スライドのアニメーションを段差で開始する ========= */
+.slide img:nth-of-type(1) { animation-delay: 0s }
+.slide img:nth-of-type(2) { animation-delay: 3s }
+.slide img:nth-of-type(3) { animation-delay: 6s }
+.slide img:nth-of-type(4) { animation-delay: 9s }
+.slide img:nth-of-type(5) { animation-delay: 12s }
+.slide img:nth-of-type(6) { animation-delay: 15s }
+.slide img:nth-of-type(7) { animation-delay: 18s }
+.slide img:nth-of-type(8) { animation-delay: 21s }
+.slide img:nth-of-type(9) { animation-delay: 24s }
+.slide img:nth-of-type(10) { animation-delay: 27s }
+
+/*=== スライドのアニメーション ========================= */
+@keyframes slideAnime{
+   0% { opacity: 0; transform: scale(.1, .1)}
+   1% { opacity: 1; transform: scale(1, 1)  }
+  9% { opacity: 1; transform: scale(1, 1)  }
+  10% { opacity: 0; transform: scale(2, 2)  }
+ 100% { opacity: 0; transform: scale(2, 2)  }
+}
+
+.open {
+	cursor:pointer; /* マウスオーバーでカーソルの形状を変えることで、クリックできる要素だとわかりやすいように */
+}
+#pop-up {
+	display: none; /* label でコントロールするので input は非表示に */
+}
+.overlay {
+	display: none; /* input にチェックが入るまでは非表示に */
+}
+#pop-up:checked + .overlay {
+	display: block;
+	z-index: 9999;
+	background-color: #00000070;
+	position: fixed;
+	width: 100%;
+	height: 100vh;
+	top: 0;
+	left: 0;
+}
+.window {
+	width: 90vw;
+	max-width: 1000px;
+	height: 240px;
+	background-color: #ffffff;
+	border-radius: 6px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.text {
+	font-size: 18px;
+	margin: 0;
+}
+.close {
+	cursor:pointer;
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	font-size: 20px;
+}
+
+p.zp1 {
+    color: #000000;
+    text-decoration: none;
+    background-color: #e6e6fa;
+    display: block;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 0 0 #696969;
+    font-weight: bold;
+    width: 150px;
+    text-align: center;
+    margin: 110px auto 0;
+    letter-spacing: 2px;
+}
