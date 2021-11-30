@@ -1,3 +1,27 @@
+
+// カウントダウンする秒数
+ var sec = 180;
+
+ // 開始日時を設定
+ var dt = new Date();
+ console.log("Start: ", dt);
+ // 終了時刻を開始日時+カウントダウンする秒数に設定
+ var endDt = new Date(dt.getTime() + sec * 1000);
+ console.log("End : ", endDt);
+
+ // 1秒おきにカウントダウン
+ var cnt = sec;
+ var id = setInterval(function(){
+   cnt--;
+   console.log(cnt);
+   // 現在日時と終了日時を比較
+   dt = new Date();
+   if(dt.getTime() >= endDt.getTime()){
+     clearInterval(id);
+     window.alert("3分経ったよ！");
+   }
+ }, 1000);
+
 function msgdsp() {
           alert("ピンク色のリンク押してもらえるとコメ欄専用ページに飛べるよ");
       }
@@ -9,45 +33,3 @@ function msgdsp() {
             function photo() {
                       alert("右にあるやん？ちゃんとみぃや？");
                   }
-
-      const answer = window.prompt('貴方はバナナですか？');
-      if(answer === 'はい') {
-          window.alert('...');
-      } else if(answer === 'いいえ') {
-          window.alert('せやな');
-      } else if(answer === 'バナナ') {
-          window.alert('🍌🍌🍌🍌🍌🍌🍌🍌🍌');
-      } else {
-          window.alert('はいかいいえかバナナでお答えください。リロードすると再表示するよ！');
-      }
-
-      function countdown(due) {
-          const now = new Date();
-
-          const rest = due.getTime() - now.getTime();
-          const sec = Math.floor(rest / 1000) % 60;
-          const min = Math.floor(rest / 1000 / 60) % 60;
-          const hours = Math.floor(rest / 1000 / 60 / 60) % 24;
-          const days = Math.floor(rest / 1000 / 60 / 60 / 24);
-          const count = [days, hours, min, sec];
-
-          return count;
-      }
-
-      const goal = new Date(2025, 4, 3);
-
-      function recalc() {
-          const counter = countdown(goal);
-          document.getElementById('day').textContent = counter[0];
-          document.getElementById('hour').textContent = counter[1];
-          document.getElementById('min').textContent = String(counter[2]).padStart(2, '0');
-          document.getElementById('sec').textContent = String(counter[3]).padStart(2, '0');
-          refresh();
-      }
-
-      function refresh() {
-          setTimeout(recalc, 1000);
-      }
-      recalc();
-
-      
