@@ -1,3 +1,6 @@
+document.getElementById("text-button").onclick = function() {
+  document.getElementById("text").innerHTML = "クリックされた！";
+};
 
 // カウントダウンする秒数
  var sec = 180;
