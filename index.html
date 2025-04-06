@@ -1,79 +1,289 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <script src="zerohp.js"></script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ゼロくんのほーむぺーじー</title>
-    <link rel="stylesheet" href="zrfcs.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    
-  </head>
-  <header style="background-image:url(https://uploda1.ysklog.net/uploda/f6174d63b5.png);
-  -webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;-ms-background-size:cover;background-size:cover;
-  background-repeat:no-repeat;background-position:center center;height:168px;">
-</header>
+<html lang="ja">
+<head>
+  <meta name=”viewport” content=”width=device-width”><meta name=”viewport” content=”width=device-width”>
+  <meta charset="UTF-8">
+  <title>Reality コメント取得テスト</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #fffefe;
+    }
+    input, button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    #log {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      height: 300px;
+      overflow-y: scroll;
+      white-space: pre-wrap;
+      font-size: 1rem;
+      line-height: 1.5;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .comment-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .comment-wrapper img.icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .comment-content {
+      background: #f9f9f9;
+      padding: 0.4em 0.6em;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .nickname {
+      font-weight: bold;
+    }
+    .text {
+      margin-top: 2px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #loading-icon, #connecting-icon, #connected-icon {
+      width: 50px;
+      height: 50px;
+      display: none;
+    }
+    #loading-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @media screen and (max-width: 400x) {  body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #000000;
+    }
+    input, button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    #log {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      height: 300px;
+      overflow-y: scroll;
+      white-space: pre-wrap;
+      font-size: 1rem;
+      line-height: 1.5;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .comment-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .comment-wrapper img.icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .comment-content {
+      background: #f9f9f9;
+      padding: 0.4em 0.6em;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .nickname {
+      font-weight: bold;
+    }
+    .text {
+      margin-top: 2px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #loading-icon, #connecting-icon, #connected-icon {
+      width: 50px;
+      height: 50px;
+      display: none;
+    }
+    #loading-icon {
+      animation: spin 1s linear infinite;
+    }
+  }
+  </style>
+</head>
 <body>
-  
-  <div class="cherry-blossom-container"></div>
-    <section class="section"><div class="container">
-  <h1 class="title">ゼロのHP</h1>
+  <h1>Reality コメント取得テスト</h1>
 
-  <form method="POST"><P>
-    <input type="button" name="B1"
-    value="明日の天気"
-    onclick="botan()"></P>
-  </form>
+  <label for="mediaId">配信ID（media_id）:</label><br>
+  <input type="text" id="mediaId" placeholder="例: "><br>
+  <button onclick="connectWebSocket()">接続</button>
+  <button onclick="disconnectWebSocket()">切断</button>
 
-  <p>【自己紹介】<br>RealityのVライバー<br>ツイキャスでイケカテ配信者してました。お姉さんと辛いモノが好き
+  <h2>ログ:</h2>
+  <div id="log"></div>
 
-    <div style="font-size:15pt">   
-<table border="2">
-  　<tr>
-    <th>配信</th>
-    <td>Reality</td>
-  　</tr>
-  　　<td>金曜日</td>
-  　　<td>21時から雑談配信</td>
-  　</tr>
-  　<tr>
-  　　<td>金曜以外</td>
-  　　<td>気が向けば筋トレ配信</td>
-  　</tr>
-  </table>
-</div>
+  <img id="loading-icon" src="https://reality.app/img/viewer/loading-icon.svg" alt="Loading">
+  <img id="connecting-icon" src="https://reality.app/favicon.ico" alt="Connecting">
+  <img id="connected-icon" src="https://reality.app/favicon.ico" alt="Connected">
+
+  <script>
+    let ws;
+
+    function log(message) {
+      const logBox = document.getElementById("log");
+      logBox.textContent += message + "\n";
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function logComment(nickname, comment, icon_url) {
+      const logBox = document.getElementById("log");
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "comment-wrapper";
+
+      const icon = document.createElement("img");
+      icon.className = "icon";
+      icon.src = icon_url;
+      icon.alt = nickname;
+      icon.onerror = () => {
+        icon.src = "https://reality.app/favicon.ico";
+      };
+
+      const content = document.createElement("div");
+      content.className = "comment-content";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "nickname";
+      nameEl.textContent = nickname;
+
+      const textEl = document.createElement("div");
+      textEl.className = "text";
+      textEl.textContent = comment;
+
+      content.appendChild(nameEl);
+      content.appendChild(textEl);
+
+      wrapper.appendChild(icon);
+      wrapper.appendChild(content);
+      logBox.appendChild(wrapper);
+
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function extractMediaIdFromUrl(url) {
+      const match = url.match(/(viewer\/|next_reality_viewer\/)(\d{9})/);
+      return match ? match[2] : null;
+    }
+
+    function connectWebSocket() {
+      const mediaId = document.getElementById("mediaId").value.trim();
+      if (!mediaId) {
+        log("⚠️ media_id を入力してください！");
+        return;
+      }
+
+      const url = `wss://comment.reality.app/?media_id=${mediaId}`;
+      log(`🔗 WebSocket接続中: ${url}`);
+
+      document.getElementById("loading-icon").style.display = "block";
+      document.getElementById("connecting-icon").style.display = "none";
+      document.getElementById("connected-icon").style.display = "none";
+
+      ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        log("✅ 接続成功！");
+        document.getElementById("loading-icon").style.display = "none";
+        document.getElementById("connecting-icon").style.display = "none";
+        document.getElementById("connected-icon").style.display = "block";
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const json = JSON.parse(event.data);
+          console.log("📄 パース後のデータ:", json);
+
+          if (json && json.content && json.nickname) {
+            const nickname = json.nickname;
+            const comment = json.content;
+            const icon_url = json.icon_url || "https://reality.app/favicon.ico";
+            logComment(nickname, comment, icon_url);
+          } else {
+            console.log("💤 無視するデータ:", json);
+          }
+        } catch (e) {
+          console.log("❌ JSONパース失敗:", event.data);
+        }
+      };
+
+      ws.onerror = (error) => {
+        log("❌ エラー: " + error);
+      };
+
+      ws.onclose = () => {
+        log("🔌 接続が切断されました");
+        document.getElementById("connecting-icon").style.display = "block";
+        document.getElementById("loading-icon").style.display = "none";
+        document.getElementById("connected-icon").style.display = "none";
+      };
+    }
+
+    function disconnectWebSocket() {
+  if (ws) {
+    ws.close();
+    log("🚪 手動で切断しました");
+  }
+
+  // 入力欄を空にする
+  document.getElementById("mediaId").value = "";
+}
 
 
- 
-      <p>最後まで読んでくれてホンマにありがとう！</p>
-  <a href="https://twitter.com/Zero87392564">Twitter</a>
-  <a class="z1"href="https://t.co/tymZ7uaIj8?amp=1">Reality</a>
-  <a class="z2"href="https://t.co/KQUuiAPJ8E">うまい棒計算機</a>
-</div></section>
+    document.getElementById("mediaId").addEventListener("input", function() {
+      const url = this.value.trim();
+      const mediaId = extractMediaIdFromUrl(url);
 
-<div class="typing">
-  21/7/11完成・22/4/11最終更新
-</div>
+      if (!mediaId) {
+        fetchExpandedUrl(url).then(expandedUrl => {
+          const expandedMediaId = extractMediaIdFromUrl(expandedUrl);
+          if (expandedMediaId) {
+            this.value = expandedMediaId;
+          }
+        });
+      } else {
+        this.value = mediaId;
+      }
+    });
 
-<!-- 一言コメントフォーム START ----->
-<table border="0" cellspacing="0" cellpadding="1">
-  <tr>
-    <td>
-<form method="POST" action="comment.php?rep=1" target="com">
-<p class="comf">英数だけやと弾かれる。50文字まで</p>
-<input type="text" id="comment" name="comment" placeholder="コメしてくれると泣いて喜びます" size="50" style="width:535;border:1px solid #ff0000">
-<input type="submit" id="submit" value=" そーしんぼたん " style="width:54">
-    </td></form>
-  </tr>
-  <tr>
-    <td>
-<div id="commentv" style="font-size:13px;line-height:15px;color:#666699;width:580px;height:160px;border:1px solid #00ccff;padding:8px;overflow-y:scroll;display:none;"></div>
-<iframe name="com" src="comment.php" id="com" style="width:301px;height:201px;frameborder:0px;border:0px;padding:0px;overflow:hidden;display:none;"></iframe>
-    </td>
-  </tr>
-</table>
-<br>
-
-<!-- 一言コメントフォーム END ----->
+    async function fetchExpandedUrl(shortUrl) {
+      try {
+        const response = await fetch(`https://api.shrtco.de/v2/expand?url=${encodeURIComponent(shortUrl)}`);
+        const data = await response.json();
+        if (data.ok) {
+          return data.result.full_link;
+        } else {
+          log("❌ 短縮URLの展開に失敗しました");
+          return shortUrl;
+        }
+      } catch (error) {
+        log("❌ エラー: " + error);
+        return shortUrl;
+      }
+    }
+  </script>
 </body>
-  </html>
+</html>
