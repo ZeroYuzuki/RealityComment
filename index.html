@@ -1,70 +1,218 @@
 <!DOCTYPE html>
 <html>
+<head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
     body {
       margin: 8px;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #10002b, #240046);
+      color: #fff;
     }
-  
+
     input, button {
       font-size: 1.2rem;
       padding: 0.6rem;
       margin: 0.4rem 0;
-      width: 100%;
       box-sizing: border-box;
+      border: none;
+      border-radius: 8px;
     }
-  
+
+    input {
+      width: 100%;
+      background: #1e1e2e;
+      color: #fff;
+      border: 1px solid #5a189a;
+    }
+
+    button {
+      background: linear-gradient(90deg, #7209b7, #560bad);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      box-shadow: 0 0 10px #4cc9f0;
+      transform: scale(1.05);
+    }
+
     #log {
-      background: #fff;
-      border: 1px solid #ccc;
+      background: #1e1e2e;
+      border: 1px solid #5a189a;
       padding: 1rem;
-      height: 500px; /* 高さアップ */
+      height: 350px;
       overflow-y: scroll;
       white-space: pre-wrap;
       font-size: 1rem;
       border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 8px rgba(140, 90, 230, 0.4);
       box-sizing: border-box;
       width: 100%;
+      color: #2196F3;
     }
-  
+
     img {
       width: 40px;
-      height: 40px;
+  height: 40px;
+  border-radius: 50%; /* アイコンを丸くする */
+  border: 3px solid; /* 枠線を追加 */
+  background:
+   padding-box linear-gradient(white,white),
+   border-box repeating-linear-gradient(#5199EA,#5696E8,#777EE0,#C447CB,#BD4CCD);
+  border-image-slice: 1; /* グラデーションを枠線全体に適用 */
     }
-  
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     @media (min-width: 600px) {
-      input, button {
+      input {
         width: auto;
         font-size: 1rem;
+        min-width: 300px;
       }
-  
+
       #log {
-        height: 300px;
+        height: 625px;
         font-size: 0.9rem;
       }
-  
+
       img {
         width: 50px;
         height: 50px;
       }
     }
+
+    .comment-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      animation: fadeInUp 0.4s ease-in-out;
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #loading-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #disconnect-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    #disconnect-btn:hover {
+      background: rgba(255, 0, 0, 0.6);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-box {
+      background: rgba(30, 30, 46, 0.95);
+      color: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .modal-box button {
+      margin: 10px;
+      padding: 6px 12px;
+      background: #5a189a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .modal-box button:hover {
+      background: #7b2cbf;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
   </style>
-  <h1>Reality コメント取得テスト</h1>
+</head>
+<body>
 
-<label for="mediaId">配信ID（media_id）:</label><br>
-<input type="text" id="mediaId" placeholder="例: "><br>
-<button onclick="connectWebSocket()">接続</button>
-<button onclick="disconnectWebSocket()">切断</button>
+<h1>コメントビューア</h1>
 
-<h2>ログ:</h2>
-<div id="log" style="background: #fff; border: 1px solid #ccc; padding: 1rem; height: 300px; overflow-y: scroll; white-space: pre-wrap; font-size: 1rem; line-height: 1.5; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1);"></div>
+<input type="text" id="mediaId" placeholder="配信URLをペースト"><br>
 
-<img id="loading-icon" src="https://reality.app/img/viewer/loading-icon.svg" alt="Loading" style="width: 50px; height: 50px; display: none; animation: spin 1s linear infinite;">
-<img id="connecting-icon" src="https://reality.app/favicon.ico" alt="Connecting" style="width: 50px; height: 50px; display: none;">
-<img id="connected-icon" src="https://reality.app/favicon.ico" alt="Connected" style="width: 50px; height: 50px; display: none;">
+<div class="btn-group">
+  <button onclick="connectWebSocket()">接続</button>
+  <button onclick="showDisconnectModal()">切断</button>
+  <button onclick="pasteFromClipboard()">ペースト</button>
+</div>
+
+<div class="log-header">
+  <h2>ログ:</h2>
+  <img id="loading-icon" src="https://reality.app/img/viewer/loading-icon.svg" alt="Loading" style="display: none;">
+  <img id="connecting-icon" src="https://reality.app/favicon.ico" alt="Connecting" style="display: none;">
+  <img id="connected-icon" src="https://reality.app/favicon.ico" alt="Connected" style="display: none;">
+</div>
+
+<div id="log"></div>
+
+<div id="disconnect-btn" onclick="showDisconnectModal()">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+    <path d="M7 10l5 5 5-5H7z"/>
+  </svg>
+</div>
+
+<div id="disconnect-modal" style="display:none;" class="modal-overlay">
+  <div class="modal-box">
+    <p>配信から切断しますか？</p>
+    <button onclick="disconnectWebSocket()">はい</button>
+    <button onclick="hideDisconnectModal()">キャンセル</button>
+  </div>
+</div>
 
 <script>
   let ws;
@@ -75,24 +223,24 @@
     logBox.scrollTop = logBox.scrollHeight;
   }
 
+  function pasteFromClipboard() {
+    navigator.clipboard.readText().then(text => {
+      document.getElementById("mediaId").value = text;
+    }).catch(err => {
+      log("❌ ペースト失敗: " + err);
+    });
+  }
+
   function logComment(nickname, comment, icon_url) {
     const logBox = document.getElementById("log");
 
     const wrapper = document.createElement("div");
     wrapper.className = "comment-wrapper";
-    wrapper.style.display = "flex";
-    wrapper.style.alignItems = "flex-start";
-    wrapper.style.gap = "10px";
-    wrapper.style.marginBottom = "10px";
 
     const icon = document.createElement("img");
     icon.className = "icon";
-    icon.src = icon_url;
+    icon.src = icon_url || "https://reality.app/favicon.ico";
     icon.alt = nickname;
-    icon.style.width = "40px";
-    icon.style.height = "40px";
-    icon.style.borderRadius = "50%";
-    icon.style.objectFit = "cover";
     icon.onerror = () => {
       icon.src = "https://reality.app/favicon.ico";
     };
@@ -126,11 +274,11 @@
 
   function extractMediaIdFromUrl(url) {
     const match = url.match(/(viewer\/|next_reality_viewer\/)(\d{9})/);
-    return match ? match[2] : null;
+    return match ? match[2] : url;
   }
 
   function connectWebSocket() {
-    const mediaId = document.getElementById("mediaId").value.trim();
+    const mediaId = extractMediaIdFromUrl(document.getElementById("mediaId").value.trim());
     if (!mediaId) {
       log("⚠️ media_id を入力してください！");
       return;
@@ -155,71 +303,41 @@
     ws.onmessage = (event) => {
       try {
         const json = JSON.parse(event.data);
-        console.log("📄 パース後のデータ:", json);
-
         if (json && json.content && json.nickname) {
-          const nickname = json.nickname;
-          const comment = json.content;
-          const icon_url = json.icon_url || "https://reality.app/favicon.ico";
-          logComment(nickname, comment, icon_url);
-        } else {
-          console.log("💤 無視するデータ:", json);
+          logComment(json.nickname, json.content, json.icon_url);
         }
-      } catch (e) {
-        console.log("❌ JSONパース失敗:", event.data);
+      } catch (err) {
+        console.error("❌ パースエラー:", err);
       }
     };
 
     ws.onerror = (error) => {
-      log("❌ エラー: " + error);
+      log("❌ エラーが発生しました。");
+      console.error("WebSocket Error:", error);
     };
 
     ws.onclose = () => {
-      log("🔌 接続が切断されました");
-      document.getElementById("connecting-icon").style.display = "block";
-      document.getElementById("loading-icon").style.display = "none";
+      log("📴 接続が切断されました。");
       document.getElementById("connected-icon").style.display = "none";
     };
   }
 
   function disconnectWebSocket() {
-    if (ws) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
       ws.close();
       log("🚪 手動で切断しました");
     }
-    document.getElementById("mediaId").value = "";
+    hideDisconnectModal();
   }
 
-  document.getElementById("mediaId").addEventListener("input", function () {
-    const url = this.value.trim();
-    const mediaId = extractMediaIdFromUrl(url);
+  function showDisconnectModal() {
+    document.getElementById("disconnect-modal").style.display = "flex";
+  }
 
-    if (!mediaId) {
-      fetchExpandedUrl(url).then(expandedUrl => {
-        const expandedMediaId = extractMediaIdFromUrl(expandedUrl);
-        if (expandedMediaId) {
-          this.value = expandedMediaId;
-        }
-      });
-    } else {
-      this.value = mediaId;
-    }
-  });
-
-  async function fetchExpandedUrl(shortUrl) {
-    try {
-      const response = await fetch(`https://api.shrtco.de/v2/expand?url=${encodeURIComponent(shortUrl)}`);
-      const data = await response.json();
-      if (data.ok) {
-        return data.result.full_link;
-      } else {
-        log("❌ 短縮URLの展開に失敗しました");
-        return shortUrl;
-      }
-    } catch (error) {
-      log("❌ エラー: " + error);
-      return shortUrl;
-    }
+  function hideDisconnectModal() {
+    document.getElementById("disconnect-modal").style.display = "none";
   }
 </script>
+
+</body>
 </html>
